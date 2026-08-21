@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-npm install dingtalk-channel-sdk   # 发布后可用；本地：npm install github:typefield/dingtalk-channel-sdk-nodejs
+npm install dingtalk-channel-sdk   # 发布后可用；本地：npm install github:DingTalk-Real-AI/dingtalk-channel-sdk-nodejs
 ```
 
 ## 最小示例
