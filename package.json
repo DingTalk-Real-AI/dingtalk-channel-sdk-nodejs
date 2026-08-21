@@ -1,0 +1,29 @@
+{
+  "name": "dingtalk-channel-sdk",
+  "version": "0.1.0",
+  "description": "DingTalk Channel SDK (Node.js) — runtime-agnostic conversation access layer for AI agents",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test --test-force-exit --test-timeout=15000 --test-concurrency=1 test/channel.test.js test/markdown.test.js test/stream.test.js test/e7_media.test.js test/reconnect.test.js test/message.test.js test/config.test.js test/http-mode.test.js test/policy-override.test.js test/features.test.js",
+    "live": "node example/livecheck.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "dingtalk",
+    "channel",
+    "sdk",
+    "agent",
+    "stream",
+    "ai-card"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}
