@@ -9,7 +9,7 @@ Requires Node.js 18+.
 ## Install
 
 ```bash
-npm install dingtalk-channel-sdk   # after release; locally: npm install github:typefield/dingtalk-channel-sdk-nodejs
+npm install dingtalk-channel-sdk   # after release; locally: npm install github:DingTalk-Real-AI/dingtalk-channel-sdk-nodejs
 ```
 
 ## Minimal Example
