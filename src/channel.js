@@ -135,6 +135,37 @@ export class DingTalkChannel {
     return resp.arrayBuffer();
   }
 
+  /**
+   * 流式下载文件到本地路径，不整块载入内存（对齐 lark channel-sdk 的 downloadResourceToFile）。
+   * SSRF 防护同 downloadFile；父目录必须已存在；先写同目录临时文件再原子
+   * 重命名，失败不落半截文件。返回写入的字节数。
+   */
+  async downloadFileToFile(url, destPath) {
+    await assertPublicUrl(url, this.cfg.ssrfAllowlist);
+    const fsp = await import('node:fs/promises');
+    const path = await import('node:path');
+    const { pipeline } = await import('node:stream/promises');
+    const { createWriteStream } = await import('node:fs');
+    const { Readable } = await import('node:stream');
+
+    const dest = path.resolve(destPath);
+    const dir = path.dirname(dest);
+    await fsp.access(dir); // 父目录必须已存在
+    const tmp = path.join(dir, `.${path.basename(dest)}.tmp-${process.pid}-${Date.now()}`);
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error(`downloadFileToFile: http ${resp.status}`);
+    }
+    try {
+      await pipeline(Readable.fromWeb(resp.body), createWriteStream(tmp));
+      await fsp.rename(tmp, dest);
+      return (await fsp.stat(dest)).size;
+    } catch (e) {
+      await fsp.rm(tmp, { force: true });
+      throw e;
+    }
+  }
+
   /** 在用户消息上打"🤔Thinking"状态章（仅人发的消息）。 */
   markThinking(conversationId, msgId) {
     return this.emotion.markThinking(conversationId, msgId);
