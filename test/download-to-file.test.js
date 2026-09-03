@@ -1,4 +1,4 @@
-// downloadFileToFile 流式落盘单测。
+// downloadFileToFile 流式落盘单测（对齐 lark channel-sdk downloadResourceToFile）。
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -37,7 +37,7 @@ test('downloadFileToFile streams to disk and keeps downloadFile working', async 
       ssrfAllowlist: ['127.0.0.1']
     });
 
-    const dir = await mkdtemp(path.join(tmpdir(), 'dl-to-file-'));
+    const dir = await mkdtemp(path.join(tmpdir(), 'larkport-'));
     const dest = path.join(dir, 'media.bin');
     const n = await ch.downloadFileToFile(`${base}/media.bin`, dest);
     assert.equal(n, MEDIA.length);
@@ -57,7 +57,7 @@ test('downloadFileToFile rejects missing parent dir without leaving files', asyn
     clientSecret: 'b',
     ssrfAllowlist: ['127.0.0.1']
   });
-  const dir = await mkdtemp(path.join(tmpdir(), 'dl-to-file-missing-'));
+  const dir = await mkdtemp(path.join(tmpdir(), 'larkport-missing-'));
   const missing = path.join(dir, 'no-such-dir', 'media.bin');
   await assert.rejects(() => ch.downloadFileToFile('http://127.0.0.1:1/x', missing));
   assert.deepEqual(await readdir(dir), []);
@@ -81,7 +81,7 @@ test('downloadFileToFile surfaces non-200 status', async () => {
       clientSecret: 'b',
       ssrfAllowlist: ['127.0.0.1']
     });
-    const dir = await mkdtemp(path.join(tmpdir(), 'dl-to-file-404-'));
+    const dir = await mkdtemp(path.join(tmpdir(), 'larkport-404-'));
     await assert.rejects(
       () => ch.downloadFileToFile(`${base}/media.bin`, path.join(dir, 'x.bin')),
       /http 404/

@@ -141,7 +141,7 @@ test('normalize actionCard: text contains title and body', () => {
   assert.ok(msg.text.includes('今天下午3点开会'));
 });
 
-test('normalize richText: extract picture/file resources', () => {
+test('normalize richText: extract picture/file resources (lark attachment-zone port)', () => {
   const data = JSON.stringify({
     conversationId: 'cid-1',
     conversationType: '2',

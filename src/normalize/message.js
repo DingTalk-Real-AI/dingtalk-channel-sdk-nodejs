@@ -48,7 +48,8 @@ export function parseContent(msgType, content, atUsers) {
             for (const m of part.atMobiles) mentions.push({ userId: m, name: m });
           }
         } else if (part.type === 'picture') {
-          // 段值即下载码：仅接受非空字符串，同一下载码单条消息内去重。
+          // 对齐 lark channel-sdk 富文本附件区：段值即下载码；
+          // 仅接受非空字符串，同一下载码单条消息内去重。
           const code = part.picture;
           if (typeof code === 'string' && code && !seenCodes.has(code)) {
             seenCodes.add(code);
