@@ -35,8 +35,10 @@ export function parseContent(msgType, content, atUsers) {
     case 'richText': {
       const parts = content.richText || [];
       const textParts = [];
+      const seenCodes = new Set();
       for (const part of parts) {
-        if (part.type === 'text' && part.text) {
+        if (!part || typeof part !== 'object') continue;
+        if (part.type === 'text' && typeof part.text === 'string') {
           textParts.push(part.text);
         } else if (part.type === 'at') {
           if (Array.isArray(part.atUserIds)) {
@@ -44,6 +46,23 @@ export function parseContent(msgType, content, atUsers) {
           }
           if (Array.isArray(part.atMobiles)) {
             for (const m of part.atMobiles) mentions.push({ userId: m, name: m });
+          }
+        } else if (part.type === 'picture') {
+          // 段值即下载码：仅接受非空字符串，同一下载码单条消息内去重。
+          const code = part.picture;
+          if (typeof code === 'string' && code && !seenCodes.has(code)) {
+            seenCodes.add(code);
+            resources.push({ type: 'image', downloadCode: code });
+          }
+        } else if (part.type === 'file') {
+          const code = part.downloadCode;
+          if (typeof code === 'string' && code && !seenCodes.has(code)) {
+            seenCodes.add(code);
+            resources.push({
+              type: 'file',
+              downloadCode: code,
+              fileName: typeof part.fileName === 'string' ? part.fileName : ''
+            });
           }
         }
       }
