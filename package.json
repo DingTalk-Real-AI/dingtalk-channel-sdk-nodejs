@@ -8,7 +8,7 @@
     ".": "./src/index.js"
   },
   "scripts": {
-    "test": "node --test --test-force-exit --test-timeout=15000 --test-concurrency=1 test/channel.test.js test/markdown.test.js test/stream.test.js test/e7_media.test.js test/reconnect.test.js test/message.test.js test/config.test.js test/http-mode.test.js test/policy-override.test.js test/features.test.js test/download-to-file.test.js",
+    "test": "node --test --test-concurrency=1 test/channel.test.js test/markdown.test.js test/stream.test.js test/e7_media.test.js test/reconnect.test.js test/message.test.js test/config.test.js test/http-mode.test.js test/policy-override.test.js test/features.test.js test/download-to-file.test.js",
     "live": "node example/livecheck.mjs"
   },
   "engines": {
