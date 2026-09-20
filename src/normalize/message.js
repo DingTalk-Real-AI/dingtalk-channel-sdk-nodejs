@@ -35,8 +35,10 @@ export function parseContent(msgType, content, atUsers) {
     case 'richText': {
       const parts = content.richText || [];
       const textParts = [];
+      const seenCodes = new Set();
       for (const part of parts) {
-        if (part.type === 'text' && part.text) {
+        if (!part || typeof part !== 'object') continue;
+        if (part.type === 'text' && typeof part.text === 'string') {
           textParts.push(part.text);
         } else if (part.type === 'at') {
           if (Array.isArray(part.atUserIds)) {
@@ -44,6 +46,30 @@ export function parseContent(msgType, content, atUsers) {
           }
           if (Array.isArray(part.atMobiles)) {
             for (const m of part.atMobiles) mentions.push({ userId: m, name: m });
+          }
+        } else if (part.type === 'picture') {
+          // 兼容 downloadCode / pictureDownloadCode / picture；
+          // 仅接受非空字符串，同一下载码单条消息内去重。
+          let code = typeof part.downloadCode === 'string' && part.downloadCode ? part.downloadCode : '';
+          if (!code && typeof part.pictureDownloadCode === 'string' && part.pictureDownloadCode) {
+            code = part.pictureDownloadCode;
+          }
+          if (!code && typeof part.picture === 'string' && part.picture) {
+            code = part.picture;
+          }
+          if (code && !seenCodes.has(code)) {
+            seenCodes.add(code);
+            resources.push({ type: 'image', downloadCode: code });
+          }
+        } else if (part.type === 'file') {
+          const code = part.downloadCode;
+          if (typeof code === 'string' && code && !seenCodes.has(code)) {
+            seenCodes.add(code);
+            resources.push({
+              type: 'file',
+              downloadCode: code,
+              fileName: typeof part.fileName === 'string' ? part.fileName : ''
+            });
           }
         }
       }
