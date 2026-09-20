@@ -28,13 +28,15 @@ test('stream reconnects after SYSTEM/disconnect', async () => {
           headers: { topic: 'disconnect', messageId: 'm-d' },
         }));
         ws.on('message', () => ws.close()); // 收到 ACK 后关闭
-      } else {
+      } else if (connections === 2) {
         ws.send(JSON.stringify({
           type: 'CALLBACK',
           headers: { topic: '/v1.0/im/bot/messages/get', messageId: 'm-r', contentType: 'application/json' },
           data: JSON.stringify({ text: { content: 'after-reconnect' }, msgId: 'b-r', conversationId: 'cid', conversationType: '1', sessionWebhook: '' }),
         }));
         ws.on('message', () => ws.close());
+      } else {
+        ws.close();
       }
     });
   });
@@ -66,8 +68,9 @@ test('stream reconnects after SYSTEM/disconnect', async () => {
   });
 
   ch.close();
+  await runPromise;
   assert.deepEqual(got, ['after-reconnect']);
   assert.ok(connections >= 2, `expected >=2 connections, got ${connections}`);
-  wss.close();
-  server.close();
+  await new Promise((resolve) => wss.close(resolve));
+  await new Promise((resolve) => server.close(resolve));
 });
