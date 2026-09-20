@@ -129,11 +129,18 @@ export class Reply {
   /** 换取消息附件下载地址（E9）。 */
   async downloadURL(downloadCode, msgId) {
     const token = await this.tokens.get();
-    const url =
-      `${this.cfg.apiBase}/v1.0/robot/messageFiles/download` +
-      `?downloadCode=${encodeURIComponent(downloadCode)}&messageId=${encodeURIComponent(msgId)}` +
-      `&robotCode=${encodeURIComponent(this.cfg.clientId)}`;
-    const resp = await fetch(url, { headers: { 'x-acs-dingtalk-access-token': token } });
+    const url = `${this.cfg.apiBase}/v1.0/robot/messageFiles/download`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-acs-dingtalk-access-token': token,
+      },
+      body: JSON.stringify({
+        downloadCode,
+        robotCode: this.cfg.clientId,
+      }),
+    });
     const body = await resp.json().catch(() => ({}));
     if (!resp.ok) throw new Error(`downloadURL: http ${resp.status}`);
     return body.downloadUrl || '';

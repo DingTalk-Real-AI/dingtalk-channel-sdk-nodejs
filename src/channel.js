@@ -22,6 +22,26 @@ import { ChatQueueManager, ChatQueueConfig } from './safety/chat-queue.js';
 import { verifyHTTPSign } from './http-mode.js';
 import { TRANSPORT_HTTP } from './config.js';
 
+async function fetchWithSsrfGuard(initialUrl, allowlist, options = {}, maxRedirects = 5) {
+  let currentUrl = initialUrl;
+  let redirects = 0;
+  while (redirects <= maxRedirects) {
+    await assertPublicUrl(currentUrl, allowlist);
+    const resp = await fetch(currentUrl, { ...options, redirect: 'manual' });
+    if (resp.status >= 300 && resp.status < 400) {
+      const location = resp.headers.get('location');
+      if (!location) {
+        throw new Error('redirect missing location header');
+      }
+      currentUrl = new URL(location, currentUrl).href;
+      redirects++;
+      continue;
+    }
+    return resp;
+  }
+  throw new Error('too many redirects');
+}
+
 /**
  * 用法：
  *   const ch = new DingTalkChannel({ clientId, clientSecret });
@@ -127,8 +147,7 @@ export class DingTalkChannel {
 
   /** 下载文件内容（SSRF 防护 downloadFile）。 */
   async downloadFile(url) {
-    await assertPublicUrl(url, this.cfg.ssrfAllowlist);
-    const resp = await fetch(url);
+    const resp = await fetchWithSsrfGuard(url, this.cfg.ssrfAllowlist);
     if (!resp.ok) {
       throw new Error(`downloadFile: http ${resp.status}`);
     }
@@ -136,23 +155,24 @@ export class DingTalkChannel {
   }
 
   /**
-   * 流式下载文件到本地路径，不整块载入内存（对齐 lark channel-sdk 的 downloadResourceToFile）。
+   * 流式下载文件到本地路径，不整块载入内存。
    * SSRF 防护同 downloadFile；父目录必须已存在；先写同目录临时文件再原子
    * 重命名，失败不落半截文件。返回写入的字节数。
    */
   async downloadFileToFile(url, destPath) {
-    await assertPublicUrl(url, this.cfg.ssrfAllowlist);
     const fsp = await import('node:fs/promises');
     const path = await import('node:path');
     const { pipeline } = await import('node:stream/promises');
     const { createWriteStream } = await import('node:fs');
     const { Readable } = await import('node:stream');
+    const crypto = await import('node:crypto');
 
     const dest = path.resolve(destPath);
     const dir = path.dirname(dest);
     await fsp.access(dir); // 父目录必须已存在
-    const tmp = path.join(dir, `.${path.basename(dest)}.tmp-${process.pid}-${Date.now()}`);
-    const resp = await fetch(url);
+    const rand = crypto.randomBytes(8).toString('hex');
+    const tmp = path.join(dir, `.${path.basename(dest)}.tmp-${process.pid}-${Date.now()}-${rand}`);
+    const resp = await fetchWithSsrfGuard(url, this.cfg.ssrfAllowlist);
     if (!resp.ok) {
       throw new Error(`downloadFileToFile: http ${resp.status}`);
     }

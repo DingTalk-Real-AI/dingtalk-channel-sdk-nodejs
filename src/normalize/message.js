@@ -48,10 +48,16 @@ export function parseContent(msgType, content, atUsers) {
             for (const m of part.atMobiles) mentions.push({ userId: m, name: m });
           }
         } else if (part.type === 'picture') {
-          // 对齐 lark channel-sdk 富文本附件区：段值即下载码；
+          // 兼容 downloadCode / pictureDownloadCode / picture；
           // 仅接受非空字符串，同一下载码单条消息内去重。
-          const code = part.picture;
-          if (typeof code === 'string' && code && !seenCodes.has(code)) {
+          let code = typeof part.downloadCode === 'string' && part.downloadCode ? part.downloadCode : '';
+          if (!code && typeof part.pictureDownloadCode === 'string' && part.pictureDownloadCode) {
+            code = part.pictureDownloadCode;
+          }
+          if (!code && typeof part.picture === 'string' && part.picture) {
+            code = part.picture;
+          }
+          if (code && !seenCodes.has(code)) {
             seenCodes.add(code);
             resources.push({ type: 'image', downloadCode: code });
           }

@@ -141,7 +141,7 @@ test('normalize actionCard: text contains title and body', () => {
   assert.ok(msg.text.includes('今天下午3点开会'));
 });
 
-test('normalize richText: extract picture/file resources (lark attachment-zone port)', () => {
+test('normalize richText: extract picture/file resources', () => {
   const data = JSON.stringify({
     conversationId: 'cid-1',
     conversationType: '2',
@@ -154,10 +154,12 @@ test('normalize richText: extract picture/file resources (lark attachment-zone p
     content: {
       richText: [
         { type: 'text', text: '图1 ' },
+        { type: 'picture', downloadCode: 'dc-1' },
+        { type: 'picture', pictureDownloadCode: 'dc-1' },
         { type: 'picture', picture: 'dc-1' },
-        { type: 'picture', picture: 'dc-1' },
-        { type: 'picture', picture: 'dc-2' },
-        { type: 'file', downloadCode: 'dc-3', fileName: 'report.pdf' },
+        { type: 'picture', pictureDownloadCode: 'dc-2' },
+        { type: 'picture', picture: 'dc-3' },
+        { type: 'file', downloadCode: 'dc-4', fileName: 'report.pdf' },
         { type: 'text', text: ' 图2' }
       ]
     }
@@ -167,7 +169,8 @@ test('normalize richText: extract picture/file resources (lark attachment-zone p
   assert.deepEqual(msg.resources, [
     { type: 'image', downloadCode: 'dc-1' },
     { type: 'image', downloadCode: 'dc-2' },
-    { type: 'file', downloadCode: 'dc-3', fileName: 'report.pdf' }
+    { type: 'image', downloadCode: 'dc-3' },
+    { type: 'file', downloadCode: 'dc-4', fileName: 'report.pdf' }
   ]);
 });
 
