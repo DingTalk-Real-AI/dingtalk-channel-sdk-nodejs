@@ -40,7 +40,7 @@ jobs:
           fi
 
           if [[ "$NPM_TAG" == "beta" ]]; then
-            npm publish --tag beta --access public
+            npm publish --tag beta --access public --provenance
           else
-            npm publish --access public
+            npm publish --access public --provenance
           fi
