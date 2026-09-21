@@ -23,6 +23,20 @@
     "ai-card"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DingTalk-Real-AI/dingtalk-channel-sdk-nodejs.git"
+  },
+  "homepage": "https://github.com/DingTalk-Real-AI/dingtalk-channel-sdk-nodejs",
+  "bugs": {
+    "url": "https://github.com/DingTalk-Real-AI/dingtalk-channel-sdk-nodejs/issues"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "ws": "^8.13.0"
   }

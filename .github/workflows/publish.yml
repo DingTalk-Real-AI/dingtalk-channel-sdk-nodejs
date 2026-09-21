@@ -1,0 +1,46 @@
+name: Publish Package to npmjs
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      npm_tag:
+        description: npm distribution tag
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - beta
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci || npm install
+      - run: npm test
+      - name: Publish package
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            NPM_TAG="${{ inputs.npm_tag }}"
+          elif [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+            NPM_TAG="beta"
+          else
+            NPM_TAG="latest"
+          fi
+
+          if [[ "$NPM_TAG" == "beta" ]]; then
+            npm publish --tag beta --access public --provenance
+          else
+            npm publish --access public --provenance
+          fi
