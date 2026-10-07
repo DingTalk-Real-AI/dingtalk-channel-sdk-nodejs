@@ -133,6 +133,18 @@ export class DingTalkChannel {
     return this.sender.sendMarkdown(target, title, text);
   }
 
+  /** 通过显式配置的 A2UI 通道发送，返回 bizId 与完整回执。 */
+  sendA2UICard(target, messages) {
+    if (!this.cfg.a2uiClient) throw new Error('请先配置 a2uiClient（例如 DwsA2UIClient）');
+    return this.cfg.a2uiClient.sendCard(target, messages);
+  }
+
+  /** 用服务端 bizId 更新同一卡片，flowStatus 必填。 */
+  updateA2UICard(bizId, messages, flowStatus) {
+    if (!this.cfg.a2uiClient) throw new Error('请先配置 a2uiClient（例如 DwsA2UIClient）');
+    return this.cfg.a2uiClient.updateCard(bizId, messages, flowStatus);
+  }
+
   sendImage(target, imageUrl) {
     return this.sender.sendImage(target, imageUrl);
   }
