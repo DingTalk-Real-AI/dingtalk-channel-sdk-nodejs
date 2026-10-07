@@ -90,6 +90,8 @@ export function normalizeConfig(config) {
     chatQueue: config.chatQueue || null,
     mediaBatch: config.mediaBatch || null,
     outbound: config.outbound || null,
+    // 显式配置 A2UI 通道：sendCard(target, messages) / updateCard(bizId, messages, flowStatus)。
+    a2uiClient: config.a2uiClient || null,
     ssrfAllowlist: config.ssrfAllowlist || [],
     debug: config.debug || (() => {}),
   };

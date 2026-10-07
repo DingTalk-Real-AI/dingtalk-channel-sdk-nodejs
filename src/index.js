@@ -1,6 +1,7 @@
 // dingtalk-channel-sdk-nodejs 公共入口。
 
 export { DingTalkChannel } from './channel.js';
+export { DwsA2UIClient, A2UI_FLOW_STATUSES, serializeA2UIMessages } from './a2ui.js';
 export { normalizeIncoming, parseContent, CONVERSATION_DM, CONVERSATION_GROUP } from './normalize/message.js';
 export { Reply } from './reply.js';
 export { CardStreamer, CardClient, ApiError } from './card.js';
